@@ -11,7 +11,7 @@ function MainFeature() {
   const Users = getIcon('Users');
   const ChevronDown = getIcon('ChevronDown');
   const ChevronUp = getIcon('ChevronUp');
-  const Users = getIcon('Users');
+  // Already imported Users above
   const UserPlus = getIcon('UserPlus');
   const Info = getIcon('Info');
   
