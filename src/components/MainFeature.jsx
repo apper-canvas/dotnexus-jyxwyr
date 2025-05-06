@@ -3,14 +3,6 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { toast } from 'react-toastify';
 import getIcon from '../utils/iconUtils';
 
-// Define player colors
-const PLAYER_COLORS = [
-  'rgb(93, 101, 239)', // primary (blue)
-  'rgb(255, 121, 80)', // secondary (orange)
-  'rgb(16, 185, 129)',  // accent (green)
-  'rgb(168, 85, 247)',  // purple
-];
-
 function MainFeature() {
   // Declare icon components
   const RefreshCw = getIcon('RefreshCw');
@@ -19,13 +11,22 @@ function MainFeature() {
   const Users = getIcon('Users');
   const ChevronDown = getIcon('ChevronDown');
   const ChevronUp = getIcon('ChevronUp');
+  const Users = getIcon('Users');
+  const UserPlus = getIcon('UserPlus');
   const Info = getIcon('Info');
   
   // Game state
   const [gridSize, setGridSize] = useState(5);
+  const [players, setPlayers] = useState([
+    { name: 'Player 1', color: 'rgb(93, 101, 239)' },
+    { name: 'Player 2', color: 'rgb(255, 121, 80)' },
+    { name: 'Player 3', color: 'rgb(16, 185, 129)' },
+    { name: 'Player 4', color: 'rgb(168, 85, 247)' },
+  ]);
   const [numPlayers, setNumPlayers] = useState(2);
   const [currentPlayer, setCurrentPlayer] = useState(0);
   const [scores, setScores] = useState(Array(4).fill(0));
+  const [gameMode, setGameMode] = useState('setup'); // 'setup', 'players', 'game'
   const [grid, setGrid] = useState([]);
   const [horizontalLines, setHorizontalLines] = useState([]);
   const [verticalLines, setVerticalLines] = useState([]);
@@ -35,10 +36,16 @@ function MainFeature() {
   
   const canvasRef = useRef(null);
   
-  // Initialize or reset the game
+  const startGame = () => {
   const resetGame = () => {
     // Reset scores
     setScores(Array(numPlayers).fill(0));
+    setGameMode('game');
+    
+    // Make sure players array length matches numPlayers
+    while (players.length < numPlayers) {
+      players.push({ name: `Player ${players.length + 1}`, color: `rgb(93, 101, 239)` });
+    }
     setCurrentPlayer(0);
     
     // Create grid points
@@ -102,7 +109,7 @@ function MainFeature() {
     setGameStarted(true);
     
     toast.success(`Game started with ${numPlayers} players!`, {
-      icon: <Users className="w-5 h-5 text-primary" />
+      icon: <Users className="w-5 h-5" style={{ color: players[0].color }} />
     });
   };
   
@@ -143,7 +150,7 @@ function MainFeature() {
     
     // Draw the line
     lines[index].drawn = true;
-    lines[index].owner = currentPlayer;
+    lines[index].owner = players[currentPlayer].color;
     
     if (isHorizontal) {
       setHorizontalLines(lines);
@@ -160,7 +167,7 @@ function MainFeature() {
       
       if (!box.complete && checkBoxComplete(box.x, box.y)) {
         box.complete = true;
-        box.owner = currentPlayer;
+        box.owner = players[currentPlayer].color;
         boxCompleted = true;
         
         // Update score
@@ -189,11 +196,11 @@ function MainFeature() {
       }
       
       if (winners.length === 1) {
-        toast.success(`Player ${winners[0] + 1} wins with ${scores[winners[0]]} boxes!`, {
+        toast.success(`${players[winners[0]].name} wins with ${scores[winners[0]]} boxes!`, {
           icon: <Trophy className="w-5 h-5 text-yellow-500" />
         });
       } else {
-        toast.info(`It's a tie between players ${winners.map(w => w + 1).join(' and ')}!`, {
+        toast.info(`It's a tie between ${winners.map(w => players[w].name).join(' and ')}!`, {
           icon: <Trophy className="w-5 h-5 text-yellow-500" />
         });
       }
@@ -250,7 +257,7 @@ function MainFeature() {
           line.endY * spacing + offset
         );
         ctx.lineWidth = 3;
-        ctx.strokeStyle = PLAYER_COLORS[line.owner];
+        ctx.strokeStyle = line.owner;
         ctx.stroke();
       }
     });
@@ -268,7 +275,7 @@ function MainFeature() {
           line.endY * spacing + offset
         );
         ctx.lineWidth = 3;
-        ctx.strokeStyle = PLAYER_COLORS[line.owner];
+        ctx.strokeStyle = line.owner;
         ctx.stroke();
       }
     });
@@ -276,7 +283,7 @@ function MainFeature() {
     // Fill in completed boxes
     boxes.forEach(box => {
       if (box.complete) {
-        ctx.fillStyle = `${PLAYER_COLORS[box.owner]}40`; // Add transparency
+        ctx.fillStyle = `${box.owner}40`; // Add transparency
         ctx.fillRect(
           box.x * spacing + offset - dotSize / 2,
           box.y * spacing + offset - dotSize / 2,
@@ -401,6 +408,13 @@ function MainFeature() {
     );
   };
   
+  // Update players when custom settings change
+  const handleUpdatePlayers = (updatedPlayers) => {
+    setPlayers(updatedPlayers);
+  };
+  
+  // Import PlayerSettings component
+  const PlayerSettings = React.lazy(() => import('./PlayerSettings'));
   return (
     <div className="card max-w-4xl mx-auto">
       <div className="flex flex-col md:flex-row gap-6 md:gap-8">
@@ -408,8 +422,15 @@ function MainFeature() {
         <div className="flex-1 order-2 md:order-1">
           <div className="flex justify-between items-center mb-4">
             <h2 className="text-xl md:text-2xl font-bold">
-              {gameStarted ? "Connect the Dots" : "Start a New Game"}
+              {gameMode === 'game' 
+                ? "Connect the Dots" 
+                : gameMode === 'players' 
+                  ? "Player Setup" 
+                  : "Game Setup"
+              }
             </h2>
+
+            {gameMode !== 'players' && (
             
             <div className="flex space-x-2">
               <button
@@ -431,6 +452,8 @@ function MainFeature() {
                 )}
               </button>
             </div>
+            </div>
+            )}
           </div>
           
           <AnimatePresence>
@@ -442,6 +465,7 @@ function MainFeature() {
                 transition={{ duration: 0.3 }}
                 className="overflow-hidden mb-6"
               >
+                {gameMode !== 'players' && (
                 <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
@@ -464,7 +488,7 @@ function MainFeature() {
                       <label className="block text-sm font-medium mb-1">Number of Players</label>
                       <select
                         value={numPlayers}
-                        onChange={(e) => setNumPlayers(Number(e.target.value))}
+                        disabled={gameMode === 'game'}
                         disabled={gameStarted}
                         className="w-full py-2 px-3 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 focus:ring-2 focus:ring-primary"
                       >
@@ -473,23 +497,62 @@ function MainFeature() {
                         <option value={4}>4 Players</option>
                       </select>
                     </div>
+                  
+                  <div className="mt-4 flex justify-end">
+                    <button
+                      onClick={() => setGameMode('players')}
+                      className="btn btn-outline flex items-center space-x-2"
+                    >
+                      <UserPlus className="w-4 h-4" />
+                      <span>Customize Players</span>
+                    </button>
                   </div>
+                  </div>
+                )}
                 </div>
               </motion.div>
             )}
           </AnimatePresence>
-          
+          {gameMode === 'setup' && (
           {!gameStarted ? (
             <div className="text-center py-8">
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
+                onClick={() => setGameMode('players')}
                 onClick={resetGame}
                 className="btn btn-primary text-lg px-6 py-3"
-              >
+                Customize Players
                 Start Game
               </motion.button>
+          )}
+          
+          {gameMode === 'players' && (
+            <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
+              <h3 className="text-lg font-semibold mb-3 flex items-center">
+                <Users className="w-5 h-5 mr-2" />
+                Player Settings
+              </h3>
+              
+              <React.Suspense fallback={<div>Loading...</div>}>
+                <PlayerSettings
+                  numPlayers={numPlayers}
+                  players={players.slice(0, numPlayers)}
+                  onUpdatePlayers={handleUpdatePlayers}
+                />
+              </React.Suspense>
+              
+              <div className="mt-6 flex justify-between">
+                <button onClick={() => setGameMode('setup')} className="btn btn-outline">
+                  Back
+                </button>
+                <button onClick={startGame} className="btn btn-primary">
+                  Start Game
+                </button>
+              </div>
             </div>
+          )}
+          
+          {gameMode === 'game' && (
           ) : (
             <div className="flex flex-col items-center">
               <div 
@@ -505,7 +568,7 @@ function MainFeature() {
               
               <div className="w-full mb-4">
                 <button 
-                  onClick={resetGame}
+                />  
                   className="btn btn-outline flex items-center justify-center space-x-2 w-full"
                 >
                   <RefreshCw className="w-4 h-4" />
@@ -517,8 +580,7 @@ function MainFeature() {
         </div>
         
         {/* Scoreboard */}
-        {gameStarted && (
-          <div className="order-1 md:order-2 md:w-64 flex-shrink-0">
+        {gameMode === 'game' && (
             <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
               <h3 className="font-semibold text-lg mb-3 flex items-center">
                 <Trophy className="w-5 h-5 mr-2 text-yellow-500" />
@@ -539,17 +601,17 @@ function MainFeature() {
                       <div className="flex items-center">
                         <div 
                           className="w-4 h-4 rounded-full mr-2"
-                          style={{ backgroundColor: PLAYER_COLORS[index] }}
+                          style={{ backgroundColor: players[index].color }}
                         ></div>
                         <span className={`font-medium ${
                           currentPlayer === index ? 'text-primary' : ''
                         }`}>
-                          Player {index + 1}
+                          {players[index].name}
                         </span>
                       </div>
                       <span className="text-lg font-bold">{scores[index]}</span>
                     </div>
-                    
+                    {currentPlayer === index && (
                     {currentPlayer === index && (
                       <div className="text-xs mt-1 text-surface-500">
                         Current turn
@@ -561,6 +623,7 @@ function MainFeature() {
             </div>
           </div>
         )}
+      </div>
       </div>
     </div>
   );

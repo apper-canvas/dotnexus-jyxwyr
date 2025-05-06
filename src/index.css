@@ -98,4 +98,23 @@
   .player-color-4 {
     @apply bg-purple-500;
   }
+  
+  /* Color picker styles */
+  .color-option {
+    @apply w-6 h-6 rounded-full flex items-center justify-center cursor-pointer shadow-sm;
+    transition: transform 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+  }
+  
+  .color-option:hover {
+    transform: scale(1.1);
+    @apply shadow;
+  }
+  
+  .color-option:focus {
+    @apply outline-none ring-2 ring-primary ring-offset-2 ring-offset-white dark:ring-offset-surface-900;
+  }
+  
+  .color-option.selected {
+    @apply ring-2 ring-white;
+  }
 }
