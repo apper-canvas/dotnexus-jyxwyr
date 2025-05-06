@@ -1,0 +1,101 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@import 'react-toastify/dist/ReactToastify.css';
+
+@layer base {
+  body {
+    @apply antialiased text-surface-800 dark:text-surface-100;
+  }
+  
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-heading font-bold;
+  }
+  
+  h1 {
+    @apply text-3xl md:text-4xl lg:text-5xl;
+  }
+  
+  h2 {
+    @apply text-2xl md:text-3xl lg:text-4xl;
+  }
+  
+  h3 {
+    @apply text-xl md:text-2xl lg:text-3xl;
+  }
+  
+  h4 {
+    @apply text-lg md:text-xl lg:text-2xl;
+  }
+  
+  p {
+    @apply mb-4;
+  }
+
+  a {
+    @apply text-primary hover:text-primary-dark transition-colors;
+  }
+}
+
+@layer components {
+  .btn {
+    @apply inline-flex items-center justify-center px-4 py-2 rounded-xl font-medium transition-all duration-150 focus:outline-none;
+  }
+  
+  .btn-primary {
+    @apply bg-primary text-white hover:bg-primary-dark active:bg-primary-dark shadow-md hover:shadow-lg;
+  }
+  
+  .btn-secondary {
+    @apply bg-secondary text-white hover:bg-secondary-dark active:bg-secondary-dark shadow-md hover:shadow-lg;
+  }
+  
+  .btn-outline {
+    @apply border border-surface-300 dark:border-surface-700 hover:bg-surface-100 dark:hover:bg-surface-800;
+  }
+  
+  .card {
+    @apply bg-white dark:bg-surface-800 rounded-2xl shadow-card p-5 md:p-6;
+  }
+  
+  .dot {
+    @apply w-4 h-4 rounded-full bg-surface-300 dark:bg-surface-700 transition-all duration-200;
+  }
+  
+  .dot-active {
+    @apply w-5 h-5 shadow-md;
+  }
+}
+
+@layer utilities {
+  .scrollbar-hide {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+  .scrollbar-hide::-webkit-scrollbar {
+    display: none;
+  }
+  
+  .grid-dots {
+    display: grid;
+    grid-template-columns: repeat(var(--grid-size, 5), 1fr);
+    gap: var(--grid-gap, 1rem);
+  }
+  
+  .player-color-1 {
+    @apply bg-primary;
+  }
+  
+  .player-color-2 {
+    @apply bg-secondary;
+  }
+  
+  .player-color-3 {
+    @apply bg-accent;
+  }
+  
+  .player-color-4 {
+    @apply bg-purple-500;
+  }
+}
