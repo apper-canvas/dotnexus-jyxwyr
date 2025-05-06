@@ -11,7 +11,7 @@ function MainFeature() {
   const Users = getIcon('Users');
   const ChevronDown = getIcon('ChevronDown');
   const ChevronUp = getIcon('ChevronUp');
-  // Already imported Users above
+  // Users already imported above
   const UserPlus = getIcon('UserPlus');
   const Info = getIcon('Info');
   
@@ -36,8 +36,8 @@ function MainFeature() {
   
   const canvasRef = useRef(null);
   
-  const startGame = () => {
   const resetGame = () => {
+  
     // Reset scores
     setScores(Array(numPlayers).fill(0));
     setGameMode('game');
@@ -431,8 +431,7 @@ function MainFeature() {
             </h2>
 
             {gameMode !== 'players' && (
-            
-            <div className="flex space-x-2">
+              <div className="flex space-x-2">
               <button
                 onClick={showInstructions}
                 className="p-2 rounded-full hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors"
@@ -451,8 +450,8 @@ function MainFeature() {
                   <ChevronDown className="w-5 h-5 text-surface-600 dark:text-surface-400" />
                 )}
               </button>
-            </div>
-            </div>
+              </div>
+            )}
             )}
           </div>
           
@@ -466,7 +465,7 @@ function MainFeature() {
                 className="overflow-hidden mb-6"
               >
                 {gameMode !== 'players' && (
-                <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
+                  <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
                       <label className="block text-sm font-medium mb-1">Grid Size</label>
@@ -489,7 +488,6 @@ function MainFeature() {
                       <select
                         value={numPlayers}
                         disabled={gameMode === 'game'}
-                        disabled={gameStarted}
                         className="w-full py-2 px-3 rounded-lg border border-surface-300 dark:border-surface-600 bg-white dark:bg-surface-700 focus:ring-2 focus:ring-primary"
                       >
                         <option value={2}>2 Players</option>
@@ -507,26 +505,27 @@ function MainFeature() {
                       <span>Customize Players</span>
                     </button>
                   </div>
+                </div>
                   </div>
                 )}
-                </div>
               </motion.div>
             )}
           </AnimatePresence>
+          
           {gameMode === 'setup' && (
-          {!gameStarted ? (
             <div className="text-center py-8">
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setGameMode('players')}
                 onClick={resetGame}
                 className="btn btn-primary text-lg px-6 py-3"
-                Customize Players
+              >
                 Start Game
               </motion.button>
+            </div>
           )}
           
           {gameMode === 'players' && (
+          <React.Suspense fallback={<div>Loading...</div>}>
             <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
               <h3 className="text-lg font-semibold mb-3 flex items-center">
                 <Users className="w-5 h-5 mr-2" />
@@ -547,10 +546,11 @@ function MainFeature() {
                 </button>
                 <button onClick={startGame} className="btn btn-primary">
                   Start Game
+          </React.Suspense>
                 </button>
               </div>
             </div>
-          )}
+          
           
           {gameMode === 'game' && (
           ) : (
@@ -568,8 +568,9 @@ function MainFeature() {
               
               <div className="w-full mb-4">
                 <button 
-                />  
+                  onClick={resetGame}
                   className="btn btn-outline flex items-center justify-center space-x-2 w-full"
+                >  
                 >
                   <RefreshCw className="w-4 h-4" />
                   <span>New Game</span>
@@ -580,7 +581,7 @@ function MainFeature() {
         </div>
         
         {/* Scoreboard */}
-        {gameMode === 'game' && (
+        <div className="flex-none order-1 md:order-2 md:w-72">
             <div className="bg-surface-100 dark:bg-surface-800 rounded-xl p-4">
               <h3 className="font-semibold text-lg mb-3 flex items-center">
                 <Trophy className="w-5 h-5 mr-2 text-yellow-500" />
@@ -612,7 +613,6 @@ function MainFeature() {
                       <span className="text-lg font-bold">{scores[index]}</span>
                     </div>
                     {currentPlayer === index && (
-                    {currentPlayer === index && (
                       <div className="text-xs mt-1 text-surface-500">
                         Current turn
                       </div>
@@ -621,9 +621,7 @@ function MainFeature() {
                 ))}
               </div>
             </div>
-          </div>
-        )}
-      </div>
+        </div>
       </div>
     </div>
   );
